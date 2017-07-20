@@ -1,61 +1,35 @@
 import React, { Component } from 'react';
 import './App.css';
-import io from 'socket.io-client';
-const socket = io();
 
-class App extends Component {
-  state = { passwords: [] }
+import Messages from './Messages';
+import SendMessage from './SendMessage';
 
-  componentDidMount() {
-    this.getPasswords();
-  }
+export default class App extends Component {
+  state = { author: '', showChat: false };
 
-  getPasswords = () => {
-    fetch('/api/passwords')
-      .then(res => res.json())
-      .then(passwords => this.setState({ passwords }));
-  }
+  setAuthor = evt => this.setState({ author: evt.target.value });
 
-  renderPasswordsArray() {
-    return this.state.passwords.map((password, index) => (
-      <li key={index}>
-        {password}
-      </li>
-    ));
-  }
+  handleSubmit = () => {
+    if (this.state.author) this.setState({ showChat: true });
+  };
 
-  renderPasswords() {
-    if (this.state.passwords.length) {
-      return (
-        <div>
-          <h1>5 Passwords.</h1>
-          <ul className="passwords">
-            {this.renderPasswordsArray()}
-          </ul>
-          <button
-            className="more"
-            onClick={this.getPasswords}>
-            Get More
-          </button>
-        </div>
-      );
-    }
+  render() {
+    const { showChat, author } = this.state;
+
+    if (showChat) return (
+      <div className="App">
+        <h1>Chat Room</h1>
+        <SendMessage author={author} />
+        <Messages />
+      </div>
+    );
 
     return (
-      <div>
-        <h1>No passwords :(</h1>
-        <button
-          className="more"
-          onClick={this.getPasswords}>
-          Try Again?
-        </button>
+      <div className="App">
+        <p>Please enter your name:</p>
+        <input id="name" type="text" value={author} onChange={this.setAuthor} />
+        <input type="submit" onClick={this.handleSubmit} />
       </div>
     );
   }
-
-  render() {
-    return <div className="App">{this.renderPasswords()}</div>;
-  }
 }
-
-export default App;
